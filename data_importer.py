@@ -4,17 +4,37 @@ from sklearn.ensemble import GradientBoostingRegressor
 import numpy as np
 import os
 import subprocess
-from geopy.geocoders import Nominatim
 from sklearn.preprocessing import OneHotEncoder
+import sqlite3
 
 def encode_one_hot(X):
     enc = OneHotEncoder()
     return enc.transform(X)
 
-def get_coordinates(zipcode):
-    geolocator = Nominatim()
-    location = geolocator.geocode(zipcode)
-    return (location.latitude, location.longitude)
+def get_coordinates(zip):
+    print(zip)
+    if zip is not None:
+        # try:
+            c.execute('SELECT longitude,latitude FROM ZipCodes WHERE zip=? ', (str(zip),))
+
+            cor_tuple=c.fetchone()
+            lon=cor_tuple[0]
+            lat=cor_tuple[1]
+        # except:
+        #     try:
+        #         geolocator = Nominatim()
+        #         location = geolocator.geocode(zip)
+        #         lon=location.longitude
+        #         lat=location.latitude
+        #     except:
+        #         myzip = zipcode.isequal(zip)
+        #         lon=myzip.lon
+        #         lat=myzip.lat
+    else:
+        lon=0
+        lat=0
+
+    return (lon, lat)
 
 
 def get_movie_data():
@@ -54,20 +74,20 @@ def writeCoordinates():
     seen_code={}
     cor_list=[]
 
-    for i in df["zip_code"] :
+    for i in df["zip_code"]:
         if i not in seen_code.keys():
             try:
                 cor = get_coordinates(i)
                 cor_list.append(cor)
                 seen_code[i] =cor
-                print "new:",i,",",cor
+                print("new:", i, ",", cor)
             except:
-                print "no response"
+                print("no response")
                 cor_list.append((0,0))
         else:
             cor =seen_code.get(i)
             cor_list.append(cor)
-            print "seen:",i,",",cor
+            print("seen:",i,",",cor)
 
     df["coordinates"] =cor_list
     df.to_csv("data/new_training_data.csv")
@@ -76,6 +96,8 @@ def writeCoordinates():
 
 
 if __name__ == '__main__':
+    conn=sqlite3.connect("H:/Python/Anaconda/Scripts/pyzipcode-1.0/pyzipcode/zipcodes.db")
+    c = conn.cursor()
     writeCoordinates()
     # df =get_movie_data()
     # for i in df["zip_code"]:

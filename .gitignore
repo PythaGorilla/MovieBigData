@@ -1,0 +1,20 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+/.idea/
+/.gitignore
+data/README.md
+"data/movies (\350\207\252\345\212\250\344\277\235\345\255\230\347\232\204).csv"
+"data/movies (\350\207\252\345\212\250\344\277\235\345\255\230\347\232\204).xlsm"
+data/rawdata/movies-2.dat
+data/rawdata/movies-3.dat
+data/rawdata/report/
+data/sample_submission.csv
+data/training_ratings_for_kaggle_comp.xlsm
+data/~$training_ratings_for_kaggle_comp.xlsm
