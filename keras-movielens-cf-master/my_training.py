@@ -7,7 +7,7 @@ import math
 import pandas as pd
 import matplotlib.pyplot as plt
 from keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
-
+import numpy as np
 import sys
 sys.path.append("H:/WareHouse/MovieBigData/keras-movielens-cf-master/")
 from CFModel import CFModel,BinaryEmbedding
@@ -18,6 +18,23 @@ from keras.layers.embeddings import Embedding
 from sklearn import preprocessing
 
 
+
+def conv(val):
+    if not val:
+        return 0
+    try:
+        return np.float64(val)
+    except:
+        return np.float64(0)
+
+def convGender(gender):
+        if not gender:
+            return 0
+
+        if gender == "M":
+            return 1
+        else:
+            return 0
 # In[152]:
 
 RATINGS_CSV_FILE = 'H:/WareHouse/MovieBigData/data/new_training_data.csv'
@@ -31,9 +48,13 @@ k_factors=180
 ratings = pd.read_csv(RATINGS_CSV_FILE, 
                       sep=',', 
                       encoding='latin-1', 
-                      usecols=["user_id","movie_id","rating","id","gender","age","occupation","zip_code","genre_name","genre_vector","year","coordinates"])
+                      usecols=["user_id","movie_id","rating","id","gender","age","occupation","zip_code","genre_name","genre_vector","year","coordinates"],converters={"year": conv,"gender":convGender})
 max_userid = ratings['user_id'].drop_duplicates().max()
 max_movieid = ratings['movie_id'].drop_duplicates().max()
+max_year=ratings['year'].drop_duplicates().max()
+max_occupation=ratings['occupation'].drop_duplicates().max()
+
+
 max_features = 18
 
 max_age = ratings['age'].drop_duplicates().max()
@@ -78,7 +99,6 @@ print ('Genres_vectors:', Genres_vectors, ', shape =', Genres_vectors.shape)
 
 Years= shuffled_ratings['year'].values
 print ('Years:', Years, ', shape =', Years.shape)
-min_max_scaler.fit_transform(Years)
 
 
 Coordinates=shuffled_ratings['coordinates'].str.split(", ",expand=True).values
@@ -99,7 +119,7 @@ print ('Coordinates:', Coordinates, ', shape =',Coordinates.shape)
 
 # In[164]:
 
-model2=MyModel(max_userid, max_movieid,max_features,max_age,k_factors)
+model2=MyModel(max_userid, max_movieid,max_features,max_age,k_factors,max_occupation,max_year)
 model2.compile(loss='mse', optimizer='adamax')
 
 
@@ -107,7 +127,7 @@ model2.compile(loss='mse', optimizer='adamax')
 
 callbacks = [EarlyStopping('val_loss', patience=3),
              ModelCheckpoint(MODEL_WEIGHTS_FILE, save_best_only=True)]
-history = model2.fit([Users, Movies,Genres_vectors,Ages,Coordinates], Ratings, nb_epoch=30, validation_split=.25, verbose=2, callbacks=callbacks)
+history = model2.fit([Users, Movies,Genres_vectors,Ages,Coordinates,Occupations,Years,Genders], Ratings, nb_epoch=30, validation_split=.25, verbose=2, callbacks=callbacks)
 
 
 # In[139]:
@@ -128,6 +148,4 @@ print ('Minimum MAE at epoch', '{:d}'.format(idx+1), '=', '{:.4f}'.format(math.f
 
 
 # In[ ]:
-
-
 
