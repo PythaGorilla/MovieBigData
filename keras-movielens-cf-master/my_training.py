@@ -47,6 +47,7 @@ print(len(ratings), 'ratings loaded.')
 # 
 
 # In[156]:
+min_max_scaler = preprocessing.MinMaxScaler()
 
 shuffled_ratings = ratings.sample(frac=1., random_state=RNG_SEED)
 Users = shuffled_ratings['user_id'].values
@@ -54,15 +55,16 @@ print ('Users:', Users, ', shape =', Users.shape)
 
 Movies = shuffled_ratings['movie_id'].values
 print( 'Movies:', Movies, ', shape =', Movies.shape)
-
 Ratings = shuffled_ratings['rating'].values
 print ('Ratings:', Ratings, ', shape =', Ratings.shape)
+min_max_scaler.fit_transform(Ratings)
 
 Genders= shuffled_ratings['gender'].values
 print ('Genders:', Genders, ', shape =', Genders.shape)
 
 Ages= shuffled_ratings['age'].values
 print ('Ages:', Ages, ', shape =', Ages.shape)
+min_max_scaler.fit_transform(Ages)
 
 Occupations= shuffled_ratings['occupation'].values
 print ('Occupations:', Occupations, ', shape =', Occupations.shape)
@@ -76,11 +78,12 @@ print ('Genres_vectors:', Genres_vectors, ', shape =', Genres_vectors.shape)
 
 Years= shuffled_ratings['year'].values
 print ('Years:', Years, ', shape =', Years.shape)
+min_max_scaler.fit_transform(Years)
+
 
 Coordinates=shuffled_ratings['coordinates'].str.split(", ",expand=True).values
 # print ('Coordinates:', Coordinates, ', shape =',Coordinates .shape)
 
-min_max_scaler = preprocessing.MinMaxScaler()
 Coordinates = min_max_scaler.fit_transform(Coordinates)
 
 
@@ -102,9 +105,9 @@ model2.compile(loss='mse', optimizer='adamax')
 
 # In[165]:
 
-callbacks = [EarlyStopping('val_loss', patience=2), 
+callbacks = [EarlyStopping('val_loss', patience=3),
              ModelCheckpoint(MODEL_WEIGHTS_FILE, save_best_only=True)]
-history = model2.fit([Users, Movies,Genres_vectors,Ages,Coordinates], Ratings, nb_epoch=30, validation_split=.1, verbose=2, callbacks=callbacks)
+history = model2.fit([Users, Movies,Genres_vectors,Ages,Coordinates], Ratings, nb_epoch=30, validation_split=.25, verbose=2, callbacks=callbacks)
 
 
 # In[139]:
